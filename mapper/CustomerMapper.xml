@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jzfblog.crm.mapper.CustomerMapper">
+
+	<!-- 根据vo条件查询客户总条数 -->
+	<select id="queryCountByQueryVo" parameterType="QueryVo"
+		resultType="Integer">
+		SELECT count(*) FROM customer
+		<where>
+			<if test="custName != null and custName != ''">cust_name like "%"#{custName}"%"</if>
+			<if test="custSource != null and custSource != ''">and cust_source = #{custSource}</if>
+			<if test="custIndustry != null and custIndustry != ''">and cust_industry = #{custIndustry}</if>
+			<if test="custLevel != null and custLevel != ''">and cust_level = #{custLevel}</if>
+		</where>
+	</select>
+
+	<!-- 根据vo条件查询客户的结果集 -->
+	<select id="queryCustomerByQueryVo" parameterType="QueryVo"
+		resultType="Customer">
+		SELECT
+		a.cust_id,
+		a.cust_name,
+		a.cust_user_id,
+		a.cust_create_id,
+		b.dict_item_name cust_source,
+		c.dict_item_name cust_industry,
+		d.dict_item_name cust_level,
+		a.cust_linkman,
+		a.cust_phone,
+		a.cust_mobile,
+		a.cust_zipcode,
+		a.cust_address,
+		a.cust_createtime
+	  FROM
+		customer a
+		LEFT JOIN base_dict b ON a.cust_source = b.dict_id
+		LEFT JOIN base_dict c ON a.cust_industry = c.dict_id
+		LEFT JOIN base_dict d ON a.cust_level = d.dict_id
+		<where>
+			<if test="custName != null and custName != ''">a.cust_name like "%"#{custName}"%"</if>
+			<if test="custSource != null and custSource != ''">and a.cust_source = #{custSource}</if>
+			<if test="custIndustry != null and custIndustry != ''">and a.cust_industry = #{custIndustry}</if>
+			<if test="custLevel != null and custLevel != ''">and a.cust_level = #{custLevel}</if>
+		</where>
+		limit #{startIndex}, #{pageSize}
+	</select>
+	
+	<!-- 根据id条查询单个客户 -->
+	<select id="queryCustomerById" parameterType="Integer"
+		resultType="Customer">
+		SELECT * FROM customer WHERE cust_id = #{id}
+	</select>
+	
+	<!-- 修改用户 -->
+	<update id="updateCustomer" parameterType="Customer">
+		UPDATE customer 
+		<set>
+			<if test="cust_name != null and cust_name != ''">
+				cust_name = #{cust_name}
+			</if>
+		</set>
+		<where>
+			cust_id = #{cust_id}
+		</where>
+	</update>
+	
+	<!-- 删除用户 -->
+	<delete id="deleteCustomer" parameterType="Customer">
+		Delete FROM customer
+		<where>cust_id = #{cust_id}</where>
+	</delete>
+</mapper>
